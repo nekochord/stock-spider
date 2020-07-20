@@ -14,8 +14,11 @@ class AllStockCodeSpider(scrapy.Spider):
 
    # Spider 自己的客製化設定
     custom_settings = {
+        # 每個下載間隔幾秒
         'DOWNLOAD_DELAY': 1,
+        # 可以同時跑幾個 request
         'CONCURRENT_REQUESTS': 1,
+        # 關掉 cookie 避免被發現是爬蟲
         'COOKIES_ENABLED': False,
     }
 
@@ -29,7 +32,6 @@ class AllStockCodeSpider(scrapy.Spider):
             # 指定 callback 是 parse function
             yield scrapy.Request(url=url, callback=self.parse)
 
-    # Spider 必須回傳 Requests 給 Engine 統一發送
     def parse(self, response):
         htmlStr = response.body.decode('MS950')
         dataFrameList = pd.read_html(htmlStr)
@@ -48,8 +50,7 @@ class AllStockCodeSpider(scrapy.Spider):
                 industryType=row[7],
                 issuanceDate=parse(row[8])
             )
-            self.log(stockCodeItem)
-            break
+            yield stockCodeItem
 
     # 驗證表頭是否正確
     def validateDataFrameColumns(self, dataFrame):
@@ -61,4 +62,5 @@ class AllStockCodeSpider(scrapy.Spider):
         assertHeaders = '頁面編號,國際證券編碼,有價證券代號,有價證券名稱,市場別,有價證券別,產業別,公開發行/上市(櫃)/發行日,CFICode,備註,'
         if(assertHeaders != headerCombine):
             self.log('錯誤表頭='+headerCombine)
+            # 直接關掉 Spider 因為大概是要重寫了
             raise CloseSpider('錯誤表頭')

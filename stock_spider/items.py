@@ -26,4 +26,5 @@ class StockCodeItem():
     stockType: str
     # 產業別
     industryType: str
+    #公開發行日
     issuanceDate: datetime.datetime
