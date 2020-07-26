@@ -11,9 +11,3 @@ from itemadapter import ItemAdapter
 class StockSpiderPipeline:
     def process_item(self, item, spider):
         return item
-
-
-class StockCodeItemPipeline:
-    # 之後會在這裡寫塞到 DB 的邏輯
-    def process_item(self, item, spider):
-        return item

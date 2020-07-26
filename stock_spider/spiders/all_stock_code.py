@@ -3,7 +3,8 @@ from scrapy.exceptions import CloseSpider
 import pandas as pd
 from datetime import *
 from dateutil.parser import *
-from stock_spider.items import StockCodeItem
+from stock_spider.entitys import StockCode
+import stock_spider.repository as repository
 
 # 獲取所有上市和上櫃的證券代號及名稱
 
@@ -21,6 +22,12 @@ class AllStockCodeSpider(scrapy.Spider):
         # 關掉 cookie 避免被發現是爬蟲
         'COOKIES_ENABLED': False,
     }
+
+    # 初始化方法
+    def __init__(self,  *args, **kwargs):
+        super(AllStockCodeSpider, self).__init__(*args, **kwargs)
+        # 清掉所有舊records
+        StockCode.clearTable()
 
     # Spider 必須回傳 Requests 給 Engine 統一發送
     def start_requests(self):
@@ -42,7 +49,8 @@ class AllStockCodeSpider(scrapy.Spider):
         self.validateDataFrameColumns(dataFrame)
 
         for row in dataFrame.itertuples():
-            stockCodeItem = StockCodeItem(
+            # insert StockCode record
+            StockCode(
                 code=row[3],
                 name=row[4],
                 marketType=row[5],
@@ -50,7 +58,6 @@ class AllStockCodeSpider(scrapy.Spider):
                 industryType=row[7],
                 issuanceDate=parse(row[8])
             )
-            yield stockCodeItem
 
     # 驗證表頭是否正確
     def validateDataFrameColumns(self, dataFrame):
