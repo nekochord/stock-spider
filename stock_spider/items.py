@@ -2,3 +2,10 @@
 #
 # See documentation in:
 # https://docs.scrapy.org/en/latest/topics/items.html
+import scrapy
+
+
+class RevenueItem(scrapy.Item):
+    # define the fields for your item here like:
+    revenue = scrapy.Field()
+    pass
