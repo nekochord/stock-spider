@@ -1,7 +1,8 @@
+import os
 from sqlobject import *
 
 # 設定 SQLObject 的連線
-connection_string = 'sqlite:'+'/Users/redcorvus/Documents/SQLite/stock_spider.db'
+connection_string = 'sqlite:'+os.path.abspath('SQLite/stock_spider.db')
 sqlhub.processConnection = connectionForURI(connection_string)
 
 
