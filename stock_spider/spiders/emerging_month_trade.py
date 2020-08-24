@@ -74,26 +74,44 @@ class EmergingMonthTradeSpider(scrapy.Spider):
             url=url,
             formdata={'yy': yearStr, 'input_stock_code': stockCode.code},
             callback=self.parse,
-            cb_kwargs={'code': stockCode.code},
+            cb_kwargs={'year': yearStr, 'code': stockCode.code},
         )
 
-    def parse(self, response, code):
+    def parse(self, response, year, code):
         dataFrameList = pd.read_html(response.text)
+        if(len(dataFrameList) < 2):
+            self.log('頁面格式錯誤, year={year} code={code}'.format(
+                year=year, code=code
+            ))
+            return
+
         dataFrame = dataFrameList[2]
-        self.validateDataFrameColumns(dataFrame)
+        self.validateDataFrameColumns(year, code, dataFrame)
         for row in dataFrame.itertuples():
             MonthTrade(
                 code=code,
                 year=row[1],
                 month=row[2],
-                highestPrice=row[3],
-                lowestPrice=row[4],
-                weightedAveragePrice=row[5],
+                highestPrice=self.toFloat(row[3]),
+                lowestPrice=self.toFloat(row[4]),
+                weightedAveragePrice=self.toFloat(row[5]),
                 transactions=row[6],
                 tradeValue=row[7]*1000,
                 tradeVolume=row[8]*1000,
-                turnoverRatio=row[9],
+                turnoverRatio=self.toFloat(row[9]),
             )
+
+    def toFloat(self, num):
+        if(type(num) == float):
+            return num
+        if (type(num) == str):
+            try:
+                return numberutil.toFloat(num)
+            except Exception:
+                self.log('錯誤浮點數='+num)
+        else:
+            self.log('錯誤浮點數='+str(num))
+        return None
 
     def countByCodeAndYear(self, code, year):
         return MonthTrade.select(AND(
@@ -115,12 +133,15 @@ class EmergingMonthTradeSpider(scrapy.Spider):
         ))
 
      # 驗證表頭是否正確
-    def validateDataFrameColumns(self, dataFrame):
+    def validateDataFrameColumns(self, year, code, dataFrame):
         headerCombine = ''
         for column in dataFrame.columns:
             headerCombine = headerCombine+column+','
 
         assertHeaders = 'Year,Month,Highestprice,Lowestprice,Averageclosingprice,Number oftransactions,TradingValue(NTD, in thousands) (A),Numbershares(in thousands) (B),Turnoverratio (%),'
         if(assertHeaders != headerCombine):
-            self.log('錯誤表頭='+headerCombine)
-            raise CloseSpider('錯誤表頭')
+            raise Exception('錯誤表頭, year={year} code={code} '.format(
+                code=code, year=year))
+        else:
+            self.log('抓取成功, year={year} code={code}'.format(
+                code=code, year=year))
