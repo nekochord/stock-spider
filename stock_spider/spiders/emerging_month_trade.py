@@ -24,7 +24,7 @@ class EmergingMonthTradeSpider(scrapy.Spider):
         'COOKIES_ENABLED': False,
     }
 
-    def __init__(self,  *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(EmergingMonthTradeSpider, self).__init__(*args, **kwargs)
         # 清掉可能需要更新的年份
         today = date.today()
@@ -33,25 +33,25 @@ class EmergingMonthTradeSpider(scrapy.Spider):
         for code in codes:
             # 現在是1月看去年12月有沒有抓
             if (today.month == 1 and
-                    not self.existByCodeAndYearAndMonth(code.code, today.year-1, 12)):
-                self.log('清掉去年資料 code={code} year={year}'.format(
-                    code=code.code, year=str(today.year-1)))
-                self.deleteByYear(code.code, today.year-1)
+                    not self.existByCodeAndYearAndMonth(code.code, today.year - 1, 12)):
+                self.logger.info('清掉去年資料 code={code} year={year}'.format(
+                    code=code.code, year=str(today.year - 1)))
+                self.deleteByYear(code.code, today.year - 1)
             # 看上個月有沒有抓
             if (today.month > 1 and
-                    not self.existByCodeAndYearAndMonth(code.code, today.year, today.month-1)):
-                self.log('清掉今年資料 code={code} year={year}'.format(
+                    not self.existByCodeAndYearAndMonth(code.code, today.year, today.month - 1)):
+                self.logger.info('清掉今年資料 code={code} year={year}'.format(
                     code=code.code, year=str(today.year)))
                 self.deleteByYear(code.code, today.year)
 
     def start_requests(self):
         # 判斷過去10年有哪幾年是完全沒資料的然後重抓
         today = date.today()
-        tenYearBeforeDate = today.replace(year=today.year-10)
+        tenYearBeforeDate = today.replace(year=today.year - 10)
         codes = repository.selectEmergingStockCode()
 
         for code in codes:
-            if(tenYearBeforeDate > code.issuanceDate):
+            if (tenYearBeforeDate > code.issuanceDate):
                 startDate = tenYearBeforeDate
             else:
                 startDate = code.issuanceDate
@@ -66,7 +66,7 @@ class EmergingMonthTradeSpider(scrapy.Spider):
 
     def createRequest(self, stockCode, reqDate):
         url = 'https://www.tpex.org.tw/web/stock/statistics/monthly/result_st44.php?l=en-us'
-        url = url+'&timestamp='+str(datetime.now().timestamp())
+        url = url + '&timestamp=' + str(datetime.now().timestamp())
         yearStr = reqDate.strftime("%Y")
 
         return scrapy.FormRequest(
@@ -79,8 +79,8 @@ class EmergingMonthTradeSpider(scrapy.Spider):
 
     def parse(self, response, year, code):
         dataFrameList = pd.read_html(response.text)
-        if(len(dataFrameList) < 2):
-            self.log('頁面格式錯誤, year={year} code={code}'.format(
+        if (len(dataFrameList) < 2):
+            self.logger.error('頁面格式錯誤, year={year} code={code}'.format(
                 year=year, code=code
             ))
             return
@@ -96,21 +96,21 @@ class EmergingMonthTradeSpider(scrapy.Spider):
                 lowestPrice=self.toFloat(row[4]),
                 weightedAveragePrice=self.toFloat(row[5]),
                 transactions=row[6],
-                tradeValue=row[7]*1000,
-                tradeVolume=row[8]*1000,
+                tradeValue=row[7] * 1000,
+                tradeVolume=row[8] * 1000,
                 turnoverRatio=self.toFloat(row[9]),
             )
 
     def toFloat(self, num):
-        if(type(num) == float):
+        if (type(num) == float):
             return num
         if (type(num) == str):
             try:
                 return numberutil.toFloat(num)
             except Exception:
-                self.log('錯誤浮點數='+num)
+                self.logger.error('錯誤浮點數=' + num)
         else:
-            self.log('錯誤浮點數='+str(num))
+            self.logger.error('錯誤浮點數=' + str(num))
         return None
 
     def countByCodeAndYear(self, code, year):
@@ -132,16 +132,16 @@ class EmergingMonthTradeSpider(scrapy.Spider):
             MonthTrade.q.year == year
         ))
 
-     # 驗證表頭是否正確
+    # 驗證表頭是否正確
     def validateDataFrameColumns(self, year, code, dataFrame):
         headerCombine = ''
         for column in dataFrame.columns:
-            headerCombine = headerCombine+column+','
+            headerCombine = headerCombine + column + ','
 
         assertHeaders = 'Year,Month,Highestprice,Lowestprice,Averageclosingprice,Number oftransactions,TradingValue(NTD, in thousands) (A),Numbershares(in thousands) (B),Turnoverratio (%),'
-        if(assertHeaders != headerCombine):
+        if (assertHeaders != headerCombine):
             raise Exception('錯誤表頭, year={year} code={code} '.format(
                 code=code, year=year))
         else:
-            self.log('抓取成功, year={year} code={code}'.format(
+            self.logger.info('抓取成功, year={year} code={code}'.format(
                 code=code, year=year))

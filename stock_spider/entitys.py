@@ -55,3 +55,37 @@ class MonthTrade(SQLObject):
 
 
 MonthTrade.createTable(ifNotExists=True)
+
+
+class EarningsPerShare(SQLObject):
+    """
+    個股的歷史EPS
+    """
+    # 股票代碼
+    code = col.StringCol()
+    # 年度
+    year = col.IntCol()
+    # 季別
+    quarter = col.IntCol()
+    # EPS
+    eps = col.FloatCol()
+
+
+EarningsPerShare.createTable(ifNotExists=True)
+
+
+class StockDividend(SQLObject):
+    """
+    歷年股利
+    """
+    # 股票代碼
+    code = col.StringCol()
+    # 年度
+    year = col.IntCol()
+    # 現金股利
+    cash = col.FloatCol()
+    # 股票股利
+    stocks = col.FloatCol()
+
+
+StockDividend.createTable(ifNotExists=True)

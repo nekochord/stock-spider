@@ -23,7 +23,7 @@ class PublicMonthTradeSpider(scrapy.Spider):
         'COOKIES_ENABLED': False,
     }
 
-    def __init__(self,  *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(PublicMonthTradeSpider, self).__init__(*args, **kwargs)
         # 清掉可能需要更新的年份
         today = date.today()
@@ -32,25 +32,25 @@ class PublicMonthTradeSpider(scrapy.Spider):
         for code in codes:
             # 現在是1月看去年12月有沒有抓
             if (today.month == 1 and
-                    not self.existByCodeAndYearAndMonth(code.code, today.year-1, 12)):
-                self.log('清掉去年資料 code={code} year={year}'.format(
-                    code=code.code, year=str(today.year-1)))
-                self.deleteByYear(code.code, today.year-1)
+                    not self.existByCodeAndYearAndMonth(code.code, today.year - 1, 12)):
+                self.logger.info('清掉去年資料 code={code} year={year}'.format(
+                    code=code.code, year=str(today.year - 1)))
+                self.deleteByYear(code.code, today.year - 1)
             # 看上個月有沒有抓
             if (today.month > 1 and
-                    not self.existByCodeAndYearAndMonth(code.code, today.year, today.month-1)):
-                self.log('清掉今年資料 code={code} year={year}'.format(
+                    not self.existByCodeAndYearAndMonth(code.code, today.year, today.month - 1)):
+                self.logger.info('清掉今年資料 code={code} year={year}'.format(
                     code=code.code, year=str(today.year)))
                 self.deleteByYear(code.code, today.year)
 
     def start_requests(self):
         # 判斷過去10年有哪幾年是完全沒資料的然後重抓
         today = date.today()
-        tenYearBeforeDate = today.replace(year=today.year-10)
+        tenYearBeforeDate = today.replace(year=today.year - 10)
         codes = repository.selectPublicStockCode()
 
         for code in codes:
-            if(tenYearBeforeDate > code.issuanceDate):
+            if (tenYearBeforeDate > code.issuanceDate):
                 startDate = tenYearBeforeDate
             else:
                 startDate = code.issuanceDate
@@ -122,6 +122,6 @@ class PublicMonthTradeSpider(scrapy.Spider):
             "Turnover Ratio(%)"]
         fields = JSON['fields']
         for i in range(len(assertFields)):
-            if(assertFields[i] != fields[i]):
-                self.log('錯誤表頭='+str(fields))
+            if (assertFields[i] != fields[i]):
+                self.logger.error('錯誤表頭=' + str(fields))
                 raise CloseSpider('錯誤表頭')
