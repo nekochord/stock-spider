@@ -1,9 +1,9 @@
 import os
 from sqlobject import *
+from stock_spider.environment import properties
 
 # 設定 SQLObject 的連線
-connection_string = 'sqlite:'+os.path.abspath('SQLite/stock_spider.db')
-sqlhub.processConnection = connectionForURI(connection_string)
+sqlhub.processConnection = connectionForURI(properties['db.url'])
 
 
 class StockCode(SQLObject):

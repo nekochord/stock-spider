@@ -525,6 +525,18 @@ six = "*"
 
 [[package]]
 category = "main"
+description = "A client for scrapyd"
+name = "scrapyd-client"
+optional = false
+python-versions = "*"
+version = "1.1.0"
+
+[package.dependencies]
+Scrapy = ">=0.17"
+six = "*"
+
+[[package]]
+category = "main"
 description = "Service identity verification for pyOpenSSL & cryptography."
 name = "service-identity"
 optional = false
@@ -689,7 +701,7 @@ test = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 
 [metadata]
-content-hash = "6c0f9b15876c14ee63bd90910b48aa4dfcddcdcf8197799d680c0f440302ef14"
+content-hash = "136dd65e7291d385a759f86e3c7586c95148cbb515dc1d0162832ff7dc7684bf"
 python-versions = "^3.8"
 
 [metadata.files]
@@ -1020,6 +1032,10 @@ scrapy = [
 scrapyd = [
     {file = "scrapyd-1.2.1-py2.py3-none-any.whl", hash = "sha256:7887b2b6d1d84291528cb65b6a2cce95d630e027c32330e72a5aa16710a6c3cb"},
     {file = "scrapyd-1.2.1.tar.gz", hash = "sha256:9afff46957794618daea93046bca58576d06c1a32b290134c051235971c32a9c"},
+]
+scrapyd-client = [
+    {file = "scrapyd-client-1.1.0.tar.gz", hash = "sha256:e547475c5c8dbd811e2cc4141a0e7b4ba47600e9980c59df4f831bb60b94e4cb"},
+    {file = "scrapyd_client-1.1.0-py2.py3-none-any.whl", hash = "sha256:caa0f5369c2e1efa7b79c309afb9819b2518870c5f4f2caf84d3e474cd6a9890"},
 ]
 service-identity = [
     {file = "service_identity-18.1.0-py2.py3-none-any.whl", hash = "sha256:001c0707759cb3de7e49c078a7c0c9cd12594161d3bf06b9c254fdcb1a60dc36"},
