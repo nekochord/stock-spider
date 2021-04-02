@@ -1,10 +1,8 @@
 import scrapy
 from scrapy.exceptions import CloseSpider
 import pandas as pd
-from datetime import *
 from dateutil.parser import *
 from stock_spider.entitys import StockCode
-import stock_spider.repository as repository
 
 
 # 獲取所有上市和上櫃的證券代號及名稱

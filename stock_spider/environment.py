@@ -1,3 +1,3 @@
 properties = {
-    'db.url': 'sqlite:/Users/redcorvus/Documents/stock_spider/SQLite/stock_spider.db'
+    'db.url': 'postgres://postgres:work0218@127.0.0.1:5432/stock'
 }
