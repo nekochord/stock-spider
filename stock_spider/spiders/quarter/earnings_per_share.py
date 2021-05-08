@@ -1,6 +1,5 @@
 import scrapy
 import pandas as pd
-from sqlobject import AND
 
 from stock_spider import repository
 from stock_spider.entitys import EarningsPerShare
@@ -40,6 +39,7 @@ class EarningsPerShareSpider(scrapy.Spider):
             return
         dataFrame = dataFrameList[2]
         dataFrame = dataFrame.drop(index=[0, 1])
+        quarterSet = self.selectExistByCode(stockCode)
         for index, row in dataFrame.iterrows():
             yearQuarter = row.get(0)
             # 年度
@@ -56,27 +56,31 @@ class EarningsPerShareSpider(scrapy.Spider):
             pre_tax_eps = numberutil.toFloat(row.get(6))
             # 稅後每股盈餘(元)
             eps = numberutil.toFloat(row.get(7))
-            self.insertIfNotExist(stockCode, year, quarter, number_of_shares, pre_tax_income, net_income, pre_tax_eps,
-                                  eps)
+            if self.quarterStr(year, quarter) not in quarterSet:
+                self.insert(stockCode, year, quarter, number_of_shares, pre_tax_income, net_income, pre_tax_eps, eps)
 
-    def insertIfNotExist(self, code, year, quarter, number_of_shares, pre_tax_income, net_income, pre_tax_eps, eps):
-        count = EarningsPerShare.select(AND(
-            EarningsPerShare.q.code == code,
-            EarningsPerShare.q.year == year,
-            EarningsPerShare.q.quarter == quarter
-        )).count()
+    def insert(self, code, year, quarter, number_of_shares, pre_tax_income, net_income, pre_tax_eps, eps):
+        EarningsPerShare(
+            code=code,
+            year=year,
+            quarter=quarter,
+            number_of_shares=number_of_shares,
+            pre_tax_income=pre_tax_income,
+            net_income=net_income,
+            pre_tax_eps=pre_tax_eps,
+            eps=eps,
+        )
 
-        if count == 0:
-            EarningsPerShare(
-                code=code,
-                year=year,
-                quarter=quarter,
-                number_of_shares=number_of_shares,
-                pre_tax_income=pre_tax_income,
-                net_income=net_income,
-                pre_tax_eps=pre_tax_eps,
-                eps=eps,
-            )
+    def selectExistByCode(self, code):
+        quarterSet = set()
+        earningsPerShares = EarningsPerShare.select(EarningsPerShare.q.code == code)
+        for eps in earningsPerShares:
+            quarterStr = self.quarterStr(eps.year, eps.quarter)
+            quarterSet.add(quarterStr)
+        return quarterSet
+
+    def quarterStr(self, year, quarter):
+        return '{year}#{quarter}'.format(year=year, quarter=quarter)
 
     def validate(self, stockCode, dataFrameList):
         if len(dataFrameList) != 4:

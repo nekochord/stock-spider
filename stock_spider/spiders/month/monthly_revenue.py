@@ -1,6 +1,5 @@
 import scrapy
 import pandas as pd
-from sqlobject import AND
 
 from stock_spider import repository
 from stock_spider.entitys import MonthlyRevenue
@@ -39,6 +38,7 @@ class MonthlyRevenueSpider(scrapy.Spider):
             return
         dataFrame = dataFrameList[2]
         dataFrame = dataFrame.drop(index=[0, 1, 2, 3, 4, 5])
+        monthSet = self.selectExistByCode(stockCode)
         for index, row in dataFrame.iterrows():
             # 股票代碼
             code = stockCode
@@ -58,29 +58,34 @@ class MonthlyRevenueSpider(scrapy.Spider):
             cumulative_revenue = numberutil.toInt(row.get(5))
             # 累計營收年增率 (百分比)
             cumulative_revenue_yoy = numberutil.toFloat(row.get(6))
-            self.insertIfNotExist(code, year, month, operating_revenue, mom, same_month_last_year,
-                                  yoy, cumulative_revenue, cumulative_revenue_yoy)
+            if self.monthStr(year, month) not in monthSet:
+                self.insert(code, year, month, operating_revenue, mom, same_month_last_year,
+                            yoy, cumulative_revenue, cumulative_revenue_yoy)
 
-    def insertIfNotExist(self, code, year, month, operating_revenue, mom, same_month_last_year,
-                         yoy, cumulative_revenue, cumulative_revenue_yoy):
-        count = MonthlyRevenue.select(AND(
-            MonthlyRevenue.q.code == code,
-            MonthlyRevenue.q.year == year,
-            MonthlyRevenue.q.month == month,
-        )).count()
+    def insert(self, code, year, month, operating_revenue, mom, same_month_last_year,
+               yoy, cumulative_revenue, cumulative_revenue_yoy):
+        MonthlyRevenue(
+            code=code,
+            year=year,
+            month=month,
+            operating_revenue=operating_revenue,
+            mom=mom,
+            same_month_last_year=same_month_last_year,
+            yoy=yoy,
+            cumulative_revenue=cumulative_revenue,
+            cumulative_revenue_yoy=cumulative_revenue_yoy,
+        )
 
-        if count == 0:
-            MonthlyRevenue(
-                code=code,
-                year=year,
-                month=month,
-                operating_revenue=operating_revenue,
-                mom=mom,
-                same_month_last_year=same_month_last_year,
-                yoy=yoy,
-                cumulative_revenue=cumulative_revenue,
-                cumulative_revenue_yoy=cumulative_revenue_yoy,
-            )
+    def selectExistByCode(self, code):
+        monthSet = set()
+        revenues = MonthlyRevenue.select(MonthlyRevenue.q.code == code)
+        for revenue in revenues:
+            monthStr = self.monthStr(revenue.year, revenue.month)
+            monthSet.add(monthStr)
+        return monthSet
+
+    def monthStr(self, year, month):
+        return '{year}#{month}'.format(year=year, month=month)
 
     def validate(self, stockCode, dataFrameList):
         if len(dataFrameList) != 3:

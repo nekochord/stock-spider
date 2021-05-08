@@ -1,6 +1,5 @@
 import scrapy
 import pandas as pd
-from sqlobject import AND
 
 from stock_spider import repository
 from stock_spider.entitys import ProfitAnalysis
@@ -39,6 +38,7 @@ class StockDividendSpider(scrapy.Spider):
             return
         dataFrame = dataFrameList[2]
         dataFrame = dataFrame.drop(index=[0, 1, 2])
+        quarterSet = self.selectExistByCode(stockCode)
         for index, row in dataFrame.iterrows():
             # 股票代碼
             code = stockCode
@@ -65,34 +65,40 @@ class StockDividendSpider(scrapy.Spider):
             pre_tax_income = numberutil.toInt(row.get(8))
             # 稅後淨利 (百萬元)
             net_income = numberutil.toInt(row.get(9))
-            self.insertIfNotExist(code, year, quarter, operating_revenue, operating_cost, gross_profit,
-                                  gross_profit_margin, operating_profit, operating_profit_margin, non_operating_revenue,
-                                  pre_tax_income, net_income)
+            if self.quarterStr(year, quarter) not in quarterSet:
+                self.insert(code, year, quarter, operating_revenue, operating_cost, gross_profit,
+                            gross_profit_margin, operating_profit, operating_profit_margin,
+                            non_operating_revenue,
+                            pre_tax_income, net_income)
 
-    def insertIfNotExist(self, code, year, quarter, operating_revenue, operating_cost, gross_profit,
-                         gross_profit_margin, operating_profit, operating_profit_margin, non_operating_revenue,
-                         pre_tax_income, net_income):
-        count = ProfitAnalysis.select(AND(
-            ProfitAnalysis.q.code == code,
-            ProfitAnalysis.q.year == year,
-            ProfitAnalysis.q.quarter == quarter,
-        )).count()
+    def insert(self, code, year, quarter, operating_revenue, operating_cost, gross_profit,
+               gross_profit_margin, operating_profit, operating_profit_margin, non_operating_revenue,
+               pre_tax_income, net_income):
+        ProfitAnalysis(
+            code=code,
+            year=year,
+            quarter=quarter,
+            operating_revenue=operating_revenue,
+            operating_cost=operating_cost,
+            gross_profit=gross_profit,
+            gross_profit_margin=gross_profit_margin,
+            operating_profit=operating_profit,
+            operating_profit_margin=operating_profit_margin,
+            non_operating_revenue=non_operating_revenue,
+            pre_tax_income=pre_tax_income,
+            net_income=net_income,
+        )
 
-        if count == 0:
-            ProfitAnalysis(
-                code=code,
-                year=year,
-                quarter=quarter,
-                operating_revenue=operating_revenue,
-                operating_cost=operating_cost,
-                gross_profit=gross_profit,
-                gross_profit_margin=gross_profit_margin,
-                operating_profit=operating_profit,
-                operating_profit_margin=operating_profit_margin,
-                non_operating_revenue=non_operating_revenue,
-                pre_tax_income=pre_tax_income,
-                net_income=net_income,
-            )
+    def selectExistByCode(self, code):
+        quarterSet = set()
+        profits = ProfitAnalysis.select(ProfitAnalysis.q.code == code)
+        for profit in profits:
+            quarterStr = self.quarterStr(profit.year, profit.quarter)
+            quarterSet.add(quarterStr)
+        return quarterSet
+
+    def quarterStr(self, year, quarter):
+        return '{year}#{quarter}'.format(year=year, quarter=quarter)
 
     def validate(self, stockCode, dataFrameList):
         if len(dataFrameList) != 4:
