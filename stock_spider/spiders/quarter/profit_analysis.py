@@ -109,7 +109,7 @@ class StockDividendSpider(scrapy.Spider):
         headers = ''
         for column, value in testSeries.items():
             headers = headers + value
-        if '季別營業收入營業成本營業毛利毛利率營業利益營益率業外收支稅前淨利稅後淨利' != headers:
+        if '季別營業收入營業成本營業毛利毛利率營業利益營益率業外收支稅前淨利稅後淨利EPS(元)' != headers:
             self.logger.error('錯誤表頭, code=' + stockCode)
             return False
         return True
