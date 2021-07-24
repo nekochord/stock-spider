@@ -1,7 +1,7 @@
 import scrapy
 import pandas as pd
-from sqlobject import AND
 
+from datetime import date
 from stock_spider import repository
 from stock_spider.entitys import StockDividend
 from stock_spider.utils import numberutil
@@ -39,6 +39,7 @@ class StockDividendSpider(scrapy.Spider):
             return
         dataFrame = dataFrameList[2]
         dataFrame = dataFrame.drop(index=[0, 1, 2, 3])
+        yearSet = self.selectExistByCode(stockCode)
         for index, row in dataFrame.iterrows():
             # 股票代碼
             code = stockCode
@@ -48,21 +49,25 @@ class StockDividendSpider(scrapy.Spider):
             cash = numberutil.toFloat(row.get(3))
             # 股票股利
             stocks = numberutil.toFloat(row.get(6))
-            self.insertIfNotExist(code, year, cash, stocks)
+            if (year is not None) and (year not in yearSet):
+                self.insert(code, year, cash, stocks)
 
-    def insertIfNotExist(self, code, year, cash, stocks):
-        count = StockDividend.select(AND(
-            StockDividend.q.code == code,
-            StockDividend.q.year == year,
-        )).count()
+    def insert(self, code, year, cash, stocks):
+        StockDividend(
+            code=code,
+            year=year,
+            cash=cash,
+            stocks=stocks,
+        )
 
-        if count == 0:
-            StockDividend(
-                code=code,
-                year=year,
-                cash=cash,
-                stocks=stocks,
-            )
+    def selectExistByCode(self, code):
+        yearSet = set()
+        # 避免存到今年還不完整的資料
+        yearSet.add(date.today().year)
+        stockDividends = StockDividend.select(StockDividend.q.code == code)
+        for stockDividend in stockDividends:
+            yearSet.add(stockDividend.year)
+        return yearSet
 
     def validate(self, stockCode, dataFrameList):
         if len(dataFrameList) != 3:
