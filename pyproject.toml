@@ -2,7 +2,7 @@
 name = "stock_spider"
 version = "0.1.0"
 description = "crawl stock info"
-authors = ["Lucas Lin<redcorvus0218@gmail.com>"]
+authors = ["Lucas Lin <redcorvus0218@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
