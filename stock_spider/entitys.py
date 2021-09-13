@@ -173,3 +173,24 @@ class WeekPrice(SQLObject):
 
 
 WeekPrice.createTable(ifNotExists=True)
+
+class CmoneyPe(SQLObject):
+    """
+    CMoney本益比資料
+    """
+    # 股票代碼
+    code = col.StringCol()
+    # 年度
+    year = col.IntCol()
+    # 月
+    month = col.IntCol()
+    # 法人預估本益比
+    per = col.FloatCol()
+    # 本益比(季高)
+    per_season_high = col.FloatCol()
+    # 本益比(季低)
+    per_season_low = col.FloatCol()
+    # 本益比(近4季)
+    per_by_twse = col.FloatCol()
+
+CmoneyPe.createTable(ifNotExists=True)
