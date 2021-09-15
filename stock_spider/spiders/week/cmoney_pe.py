@@ -25,7 +25,7 @@ class CMoneyPeSpider(scrapy.Spider):
             yield self.createRequest(code.code)
 
     def createRequest(self, stockCode):
-        url = 'https://www.cmoney.tw/finance/ashx/mainpage.ashx?stockId={code}&action=GetPERAndEPSBySeason&cmkey=9uOJPVIJVUj2u83XQzQEYg=='
+        url = 'https://www.cmoney.tw/finance/ashx/mainpage.ashx?stockId={code}&action=GetPERAndEPSBySeason&cmkey=KcQOrThjFRHrBSk+q7vUVA=='
         return scrapy.Request(
             url=url.format(code=stockCode),
             headers={"Referer": "https://www.cmoney.tw/finance/f00032.aspx"},
