@@ -30,9 +30,6 @@ with open(args.log, 'r', encoding='utf8') as log_file:
             error_content = error_content + line
         line = log_file.readline()
 
-if len(error_content) == 0:
-    exit(0)
-
 sender = 'stock_alert@red.com'
 receivers = [args.receiver]
 mail_msg = """
