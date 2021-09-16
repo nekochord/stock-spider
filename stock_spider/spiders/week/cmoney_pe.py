@@ -1,6 +1,9 @@
 import scrapy
 import json
+import re
+import requests
 from stock_spider import repository
+from scrapy.exceptions import CloseSpider
 from sqlobject import *
 from stock_spider.entitys import CmoneyPe
 from stock_spider.utils import numberutil
@@ -20,18 +23,28 @@ class CMoneyPeSpider(scrapy.Spider):
     }
 
     def start_requests(self):
+        res = requests.get("https://www.cmoney.tw/finance/f00032.aspx?s=2330")
+        cmkey = self.parseCmkey(res.text)
         codes = repository.selectAllStockCode()
         for code in codes:
-            yield self.createRequest(code.code)
+            yield self.createRequest(code.code, cmkey)
 
-    def createRequest(self, stockCode):
-        url = 'https://www.cmoney.tw/finance/ashx/mainpage.ashx?stockId={code}&action=GetPERAndEPSBySeason&cmkey=KcQOrThjFRHrBSk+q7vUVA=='
+    def createRequest(self, stockCode, cmkey):
+        url = 'https://www.cmoney.tw/finance/ashx/mainpage.ashx?stockId={code}&action=GetPERAndEPSBySeason&cmkey={cmkey}'
         return scrapy.Request(
-            url=url.format(code=stockCode),
+            url=url.format(code=stockCode, cmkey=cmkey),
             headers={"Referer": "https://www.cmoney.tw/finance/f00032.aspx"},
             callback=self.parse,
             cb_kwargs={'stockCode': stockCode},
         )
+
+    def parseCmkey(self, content):
+        match = re.search("title='本益比' cmkey='(.+?)'>", content)
+        if match:
+            return match.group(1)
+        else:
+            self.logger.error('無法找到cmkey')
+            raise CloseSpider('無法找到cmkey')
 
     def parse(self, response, stockCode):
         json_str = response.text

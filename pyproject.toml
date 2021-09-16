@@ -14,6 +14,7 @@ BeautifulSoup4 = "^4.9.1"
 scrapyd = "^1.2.1"
 scrapyd-client = "^1.1.0"
 psycopg2-binary = "^2.8.6"
+requests = "^2.26.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^4.6"
