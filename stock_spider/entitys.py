@@ -174,6 +174,7 @@ class WeekPrice(SQLObject):
 
 WeekPrice.createTable(ifNotExists=True)
 
+
 class CmoneyPe(SQLObject):
     """
     CMoney本益比資料
@@ -193,4 +194,45 @@ class CmoneyPe(SQLObject):
     # 本益比(近4季)
     per_by_twse = col.FloatCol()
 
+
 CmoneyPe.createTable(ifNotExists=True)
+
+
+class DayBrokerage(SQLObject):
+    """
+    個股每日券商買賣超排行
+    """
+    # 股票代碼
+    code = col.StringCol()
+    # 日期
+    day = col.DateCol(dateFormat='%Y/%m/%d')
+    # 券商名稱
+    brokerage_name = col.StringCol()
+    # 買進
+    buy = col.BigIntCol()
+    # 賣出
+    sell = col.BigIntCol()
+    # 合計
+    total = col.BigIntCol()
+    # 佔成交比重
+    percent = col.FloatCol()
+
+
+DayBrokerage.createTable(ifNotExists=True)
+
+
+class DayInstitutionalInvestor(SQLObject):
+    """
+    個股每日法人交易資料
+    """
+    # 股票代碼
+    code = col.StringCol()
+    # 日期
+    day = col.DateCol(dateFormat='%Y/%m/%d')
+    # 法人
+    investor = col.StringCol()
+    # 合計
+    total = col.BigIntCol()
+
+
+DayInstitutionalInvestor.createTable(ifNotExists=True)
