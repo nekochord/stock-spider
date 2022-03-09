@@ -47,7 +47,7 @@ class DayInstitutionalInvestorSpider(scrapy.Spider):
                 code = stockCode
                 # 日期
                 sp = row.get(0).split('/')
-                year = numberutil.toInt(row.get(0).split('/')[0]) + 1911
+                year = numberutil.toInt(sp[0]) + 1911
                 day = str(year) + '/' + sp[1] + '/' + sp[2]
                 # 外資
                 foreign = numberutil.toInt(row.get(1))

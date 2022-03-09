@@ -2,7 +2,6 @@ import scrapy
 import pandas as pd
 import datetime
 
-from stock_spider import repository
 from stock_spider.entitys import DayBrokerage, DayPrice
 from stock_spider.utils import numberutil
 
@@ -21,15 +20,11 @@ class DayBrokerageSpider(scrapy.Spider):
     }
 
     def start_requests(self):
-        # 檢查今天是否為交易日
         today = datetime.date.today()
-        dayPrice = self.selectLatestDayPrice()
-        if today == dayPrice.day:
-            codes = repository.selectAllStockCode()
-            for code in codes:
-                yield self.createRequest(code.code, today)
-        else:
-            self.logger.info("今天不是交易日")
+        allDayPrice = self.selectAllDayPrice(today)
+        for dayPrice in allDayPrice:
+            if dayPrice.amount > 0:
+                yield self.createRequest(dayPrice.code, today)
 
     def createRequest(self, stockCode, today):
         day = today.strftime("%Y-%m-%d")
@@ -96,9 +91,8 @@ class DayBrokerageSpider(scrapy.Spider):
             percent=percent
         )
 
-    def selectLatestDayPrice(self):
-        dayPrice = DayPrice.select().orderBy('day desc').limit(1).getOne()
-        return dayPrice
+    def selectAllDayPrice(self, today):
+        return DayPrice.select(DayPrice.q.day == today).orderBy('code')
 
     def validate(self, stockCode, responseText, dataFrameList):
         if "查無" in responseText:

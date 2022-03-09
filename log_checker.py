@@ -27,7 +27,7 @@ with open(args.log, 'r', encoding='utf8') as log_file:
     while line:
         has_error = re.search(args.regex, line)
         if has_error:
-            error_content = error_content + line
+            error_content = error_content + line + '\r\n'
         line = log_file.readline()
 
 sender = 'stock_alert@red.com'
