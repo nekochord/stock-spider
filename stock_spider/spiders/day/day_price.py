@@ -88,7 +88,7 @@ class DayPriceSpider(scrapy.Spider):
         return daySet
 
     def validate(self, stockCode, dataArray):
-        if len(dataArray) != 23:
+        if len(dataArray) < 6:
             self.logger.error('網頁格式錯誤, code=' + stockCode)
             return False
         return True
