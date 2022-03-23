@@ -34,7 +34,7 @@ sender = 'stock_alert@red.com'
 receivers = [args.receiver]
 mail_msg = """
 <h3>{log}</h3>
-<p>{content}</p>
+<pre>{content}</pre>
 """
 message = MIMEText(mail_msg.format(log=args.log, content=error_content), 'html', 'utf-8')
 message['Subject'] = Header(args.title, 'utf-8')
