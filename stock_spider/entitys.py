@@ -198,7 +198,18 @@ class CmoneyPe(SQLObject):
 CmoneyPe.createTable(ifNotExists=True)
 
 
-class DayBrokerage(SQLObject):
+class BrokerageName(SQLObject):
+    """
+    券商名稱資訊
+    """
+    # 券商名稱
+    brokerage_name = col.StringCol()
+
+
+BrokerageName.createTable(ifNotExists=True)
+
+
+class DayBrokerageActivity(SQLObject):
     """
     個股每日券商買賣超排行
     """
@@ -206,19 +217,15 @@ class DayBrokerage(SQLObject):
     code = col.StringCol()
     # 日期
     day = col.DateCol(dateFormat='%Y/%m/%d')
-    # 券商名稱
-    brokerage_name = col.StringCol()
-    # 買進
-    buy = col.BigIntCol()
-    # 賣出
-    sell = col.BigIntCol()
+    # 券商ID
+    brokerage_id = col.IntCol()
     # 合計
     total = col.BigIntCol()
     # 佔成交比重
     percent = col.FloatCol()
 
 
-DayBrokerage.createTable(ifNotExists=True)
+DayBrokerageActivity.createTable(ifNotExists=True)
 
 
 class DayInstitutionalInvestor(SQLObject):

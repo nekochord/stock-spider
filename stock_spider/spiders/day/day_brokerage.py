@@ -1,8 +1,10 @@
 import scrapy
 import pandas as pd
 import datetime
+from sqlobject import *
+from sqlobject.sqlbuilder import Insert
 
-from stock_spider.entitys import DayBrokerage, DayPrice
+from stock_spider.entitys import DayPrice, BrokerageName
 from stock_spider.utils import numberutil
 
 
@@ -19,8 +21,13 @@ class DayBrokerageSpider(scrapy.Spider):
         'COOKIES_ENABLED': False,
     }
 
+    # 初始化方法
+    def __init__(self, *args, **kwargs):
+        super(DayBrokerageSpider, self).__init__(*args, **kwargs)
+        self.brokerage_dict = self.selectBrokerageNameToIdDict()
+
     def start_requests(self):
-        today = datetime.date.today()
+        today = datetime.date.fromisoformat('2022-04-22')
         allDayPrice = self.selectAllDayPrice(today)
         for dayPrice in allDayPrice:
             if dayPrice.amount > 0:
@@ -57,10 +64,6 @@ class DayBrokerageSpider(scrapy.Spider):
                 buy_brokerage_name = row.get(0)
                 if pd.isna(buy_brokerage_name):
                     break
-                # 買超券商買超
-                buy_buy = numberutil.toInt(row.get(1))
-                # 買超券商賣超
-                buy_sell = numberutil.toInt(row.get(2))
                 # 買超量
                 buy_total = numberutil.toInt(row.get(3))
                 # 買超比重
@@ -69,30 +72,41 @@ class DayBrokerageSpider(scrapy.Spider):
                 sell_brokerage_name = row.get(5)
                 if pd.isna(sell_brokerage_name):
                     break
-                # 賣超券商買超
-                sell_buy = numberutil.toInt(row.get(6))
-                # 賣超券商賣超
-                sell_sell = numberutil.toInt(row.get(7))
                 # 賣超量
                 sell_total = numberutil.toInt(row.get(8))
                 # 賣超比重
                 sell_percent = numberutil.toFloat(row.get(9))
-                self.insert(code, day, buy_brokerage_name, buy_buy, buy_sell, buy_total, buy_percent)
-                self.insert(code, day, sell_brokerage_name, sell_buy, sell_sell, -sell_total, sell_percent)
+                self.insert(code, day, buy_brokerage_name, buy_total, buy_percent)
+                self.insert(code, day, sell_brokerage_name, -sell_total, sell_percent)
 
-    def insert(self, code, day, brokerage_name, buy, sell, total, percent):
-        DayBrokerage(
-            code=code,
-            day=day,
-            brokerage_name=brokerage_name,
-            buy=buy,
-            sell=sell,
-            total=total,
-            percent=percent
-        )
+    def insert(self, code, day, brokerage_name, total, percent):
+        brokerage_id = self.brokerage_dict.get(brokerage_name)
+
+        if brokerage_id is None:
+            new_brokerage = BrokerageName(brokerage_name=brokerage_name)
+            brokerage_id = new_brokerage.id
+            self.brokerage_dict[brokerage_name] = brokerage_id
+
+        insert = Insert('day_brokerage_activity', values={
+            'code': code,
+            'day': day,
+            'brokerage_id': brokerage_id,
+            'total': total,
+            'percent': percent
+        })
+        connection = sqlhub.getConnection()
+        query = connection.sqlrepr(insert)
+        connection.query(query)
 
     def selectAllDayPrice(self, today):
         return DayPrice.select(DayPrice.q.day == today).orderBy('code')
+
+    def selectBrokerageNameToIdDict(self):
+        all_name = BrokerageName.select()
+        name_to_id_dict = dict()
+        for name in all_name:
+            name_to_id_dict[name.brokerage_name] = name.id
+        return name_to_id_dict
 
     def validate(self, stockCode, responseText, dataFrameList):
         if "查無" in responseText:
