@@ -27,7 +27,7 @@ class DayBrokerageSpider(scrapy.Spider):
         self.brokerage_dict = self.selectBrokerageNameToIdDict()
 
     def start_requests(self):
-        today = datetime.date.fromisoformat('2022-04-22')
+        today = datetime.date.today()
         allDayPrice = self.selectAllDayPrice(today)
         for dayPrice in allDayPrice:
             if dayPrice.amount > 0:
