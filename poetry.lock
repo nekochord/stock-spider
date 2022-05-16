@@ -75,6 +75,14 @@ html5lib = ["html5lib"]
 lxml = ["lxml"]
 
 [[package]]
+name = "certifi"
+version = "2021.10.8"
+description = "Python package for providing Mozilla's CA Bundle."
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "cffi"
 version = "1.14.5"
 description = "Foreign Function Interface for Python calling C code."
@@ -84,6 +92,17 @@ python-versions = "*"
 
 [package.dependencies]
 pycparser = "*"
+
+[[package]]
+name = "charset-normalizer"
+version = "2.0.12"
+description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
+category = "main"
+optional = false
+python-versions = ">=3.5.0"
+
+[package.extras]
+unicode_backport = ["unicodedata2"]
 
 [[package]]
 name = "colorama"
@@ -127,6 +146,18 @@ description = "cssselect parses CSS3 Selectors and translates them to XPath 1.0"
 category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+
+[[package]]
+name = "filelock"
+version = "3.7.0"
+description = "A platform independent file lock."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.extras]
+docs = ["furo (>=2021.8.17b43)", "sphinx (>=4.1)", "sphinx-autodoc-typehints (>=1.12)"]
+testing = ["covdefaults (>=1.2.0)", "coverage (>=4)", "pytest (>=4)", "pytest-cov", "pytest-timeout (>=1.4.2)"]
 
 [[package]]
 name = "formencode"
@@ -501,8 +532,38 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "requests"
+version = "2.27.1"
+description = "Python HTTP for Humans."
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
+
+[package.dependencies]
+certifi = ">=2017.4.17"
+charset-normalizer = {version = ">=2.0.0,<2.1.0", markers = "python_version >= \"3\""}
+idna = {version = ">=2.5,<4", markers = "python_version >= \"3\""}
+urllib3 = ">=1.21.1,<1.27"
+
+[package.extras]
+socks = ["PySocks (>=1.5.6,!=1.5.7)", "win-inet-pton"]
+use_chardet_on_py3 = ["chardet (>=3.0.2,<5)"]
+
+[[package]]
+name = "requests-file"
+version = "1.5.1"
+description = "File transport adapter for Requests"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+requests = ">=1.0.0"
+six = "*"
+
+[[package]]
 name = "scrapy"
-version = "2.4.1"
+version = "2.6.0"
 description = "A high-level Web Crawling and Web Scraping framework"
 category = "main"
 optional = false
@@ -519,11 +580,12 @@ lxml = [
 ]
 parsel = ">=1.5.0"
 protego = ">=0.1.15"
-PyDispatcher = ">=2.0.5"
+PyDispatcher = {version = ">=2.0.5", markers = "platform_python_implementation == \"CPython\""}
 pyOpenSSL = ">=16.2.0"
 PyPyDispatcher = {version = ">=2.1.0", markers = "platform_python_implementation == \"PyPy\""}
 queuelib = ">=1.4.2"
 service-identity = ">=16.0.0"
+tldextract = "*"
 Twisted = ">=17.9.0"
 w3lib = ">=1.17.0"
 "zope.interface" = ">=4.1.3"
@@ -629,6 +691,20 @@ supersqlite = ["supersqlite"]
 sybase = ["sybase"]
 
 [[package]]
+name = "tldextract"
+version = "3.3.0"
+description = "Accurately separates a URL's subdomain, domain, and public suffix, using the Public Suffix List (PSL). By default, this includes the public ICANN TLDs and their exceptions. You can optionally support the Public Suffix List's private domains as well."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+filelock = ">=3.0.8"
+idna = "*"
+requests = ">=2.1.0"
+requests-file = ">=1.4"
+
+[[package]]
 name = "toml"
 version = "0.10.2"
 description = "Python Library for Tom's Obvious, Minimal Language"
@@ -674,6 +750,19 @@ description = "An extension for use in the twisted I/O Completion Ports reactor.
 category = "main"
 optional = false
 python-versions = "*"
+
+[[package]]
+name = "urllib3"
+version = "1.26.9"
+description = "HTTP library with thread-safe connection pooling, file post, and more."
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4"
+
+[package.extras]
+brotli = ["brotlicffi (>=0.8.0)", "brotli (>=1.0.9)", "brotlipy (>=0.6.0)"]
+secure = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "certifi", "ipaddress"]
+socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
 [[package]]
 name = "w3lib"
@@ -726,7 +815,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "1ea13119bf7ff07f30c5ce09617233c640fa5290c4c145b5ee5135fdf491c12d"
+content-hash = "47816d90438149b0d65b2f240de3c9dbc92c2a28d9a2417a03cb385f92bcc7e0"
 
 [metadata.files]
 astroid = [
@@ -753,6 +842,10 @@ beautifulsoup4 = [
     {file = "beautifulsoup4-4.9.3-py2-none-any.whl", hash = "sha256:4c98143716ef1cb40bf7f39a8e3eec8f8b009509e74904ba3a7b315431577e35"},
     {file = "beautifulsoup4-4.9.3-py3-none-any.whl", hash = "sha256:fff47e031e34ec82bf17e00da8f592fe7de69aeea38be00523c04623c04fb666"},
     {file = "beautifulsoup4-4.9.3.tar.gz", hash = "sha256:84729e322ad1d5b4d25f805bfa05b902dd96450f43842c4e99067d5e1369eb25"},
+]
+certifi = [
+    {file = "certifi-2021.10.8-py2.py3-none-any.whl", hash = "sha256:d62a0163eb4c2344ac042ab2bdf75399a71a2d8c7d47eac2e2ee91b9d6339569"},
+    {file = "certifi-2021.10.8.tar.gz", hash = "sha256:78884e7c1d4b00ce3cea67b44566851c4343c120abd683433ce934a68ea58872"},
 ]
 cffi = [
     {file = "cffi-1.14.5-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:bb89f306e5da99f4d922728ddcd6f7fcebb3241fc40edebcb7284d7514741991"},
@@ -805,6 +898,10 @@ cffi = [
     {file = "cffi-1.14.5-cp39-cp39-win_amd64.whl", hash = "sha256:f2d45f97ab6bb54753eab54fffe75aaf3de4ff2341c9daee1987ee1837636f1d"},
     {file = "cffi-1.14.5.tar.gz", hash = "sha256:fd78e5fee591709f32ef6edb9a015b4aa1a5022598e36227500c8f4e02328d9c"},
 ]
+charset-normalizer = [
+    {file = "charset-normalizer-2.0.12.tar.gz", hash = "sha256:2857e29ff0d34db842cd7ca3230549d1a697f96ee6d3fb071cfa6c7393832597"},
+    {file = "charset_normalizer-2.0.12-py3-none-any.whl", hash = "sha256:6881edbebdb17b39b4eaaa821b438bf6eddffb4468cf344f09f89def34a8b1df"},
+]
 colorama = [
     {file = "colorama-0.4.4-py2.py3-none-any.whl", hash = "sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2"},
     {file = "colorama-0.4.4.tar.gz", hash = "sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b"},
@@ -830,6 +927,10 @@ cryptography = [
 cssselect = [
     {file = "cssselect-1.1.0-py2.py3-none-any.whl", hash = "sha256:f612ee47b749c877ebae5bb77035d8f4202c6ad0f0fc1271b3c18ad6c4468ecf"},
     {file = "cssselect-1.1.0.tar.gz", hash = "sha256:f95f8dedd925fd8f54edb3d2dfb44c190d9d18512377d3c1e2388d16126879bc"},
+]
+filelock = [
+    {file = "filelock-3.7.0-py3-none-any.whl", hash = "sha256:c7b5fdb219b398a5b28c8e4c1893ef5f98ece6a38c6ab2c22e26ec161556fed6"},
+    {file = "filelock-3.7.0.tar.gz", hash = "sha256:b795f1b42a61bbf8ec7113c341dad679d772567b936fbd1bf43c9a238e673e20"},
 ]
 formencode = [
     {file = "FormEncode-2.0.0-py2.py3-none-any.whl", hash = "sha256:8d032bd1cfe8bddd8aaf738bc5ddaacfe0a2ba58d18df7435eff56cb3cac8e96"},
@@ -1115,9 +1216,17 @@ queuelib = [
     {file = "queuelib-1.5.0-py2.py3-none-any.whl", hash = "sha256:ff43b5b74b9266f8df4232a8f768dc4d67281a271905e2ed4a3689d4d304cd02"},
     {file = "queuelib-1.5.0.tar.gz", hash = "sha256:42b413295551bdc24ed9376c1a2cd7d0b1b0fa4746b77b27ca2b797a276a1a17"},
 ]
+requests = [
+    {file = "requests-2.27.1-py2.py3-none-any.whl", hash = "sha256:f22fa1e554c9ddfd16e6e41ac79759e17be9e492b3587efa038054674760e72d"},
+    {file = "requests-2.27.1.tar.gz", hash = "sha256:68d7c56fd5a8999887728ef304a6d12edc7be74f1cfa47714fc8b414525c9a61"},
+]
+requests-file = [
+    {file = "requests-file-1.5.1.tar.gz", hash = "sha256:07d74208d3389d01c38ab89ef403af0cfec63957d53a0081d8eca738d0247d8e"},
+    {file = "requests_file-1.5.1-py2.py3-none-any.whl", hash = "sha256:dfe5dae75c12481f68ba353183c53a65e6044c923e64c24b2209f6c7570ca953"},
+]
 scrapy = [
-    {file = "Scrapy-2.4.1-py2.py3-none-any.whl", hash = "sha256:27621ab491706ec8cc41168cdbdff07e7fe8c344c8640e9e9faebd7cf84008e2"},
-    {file = "Scrapy-2.4.1.tar.gz", hash = "sha256:68c48f01a58636bdf0f6fcd5035a19ecf277b58af24bd70c36dc6e556df3e005"},
+    {file = "Scrapy-2.6.0-py2.py3-none-any.whl", hash = "sha256:43720ab3322074206beb1018f63f80b452bcde12e45980d530bfe2210f5f2f8b"},
+    {file = "Scrapy-2.6.0.tar.gz", hash = "sha256:26dfed99ca0ad787d703e970774185e36294b2ff15e9ca7d8912c0874401c5f0"},
 ]
 scrapyd = [
     {file = "scrapyd-1.2.1-py2.py3-none-any.whl", hash = "sha256:7887b2b6d1d84291528cb65b6a2cce95d630e027c32330e72a5aa16710a6c3cb"},
@@ -1142,6 +1251,10 @@ soupsieve = [
 sqlobject = [
     {file = "SQLObject-3.9.1-py2.py3-none-any.whl", hash = "sha256:ec2b09215d181506d247096bc2c4abebc8e33a25212b25c676f3e3862d1150ea"},
     {file = "SQLObject-3.9.1.tar.gz", hash = "sha256:45064184decf7f42d386704e5f47a70dee517d3e449b610506e174025f84d921"},
+]
+tldextract = [
+    {file = "tldextract-3.3.0-py3-none-any.whl", hash = "sha256:5d88321b1b528ebb8f678c72ab023f37caf6381f6af9576b4e60fd266cff178c"},
+    {file = "tldextract-3.3.0.tar.gz", hash = "sha256:adcd24abf21ce3450417cd5a00f23b7e57554ce8ae827334dd12bfcbb6274cf1"},
 ]
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
@@ -1168,6 +1281,10 @@ twisted-iocpsupport = [
     {file = "twisted_iocpsupport-1.0.1-pp27-pypy_73-win32.whl", hash = "sha256:eb033bed4f20d2053767054c33be4d8ae09faf23d547681ecd5ff463d97bc099"},
     {file = "twisted_iocpsupport-1.0.1-pp36-pypy36_pp73-win32.whl", hash = "sha256:ed8cb959d7dce287419e766267a280139fedf14217d85695d7b6384d8ccd3353"},
     {file = "twisted_iocpsupport-1.0.1-pp37-pypy37_pp73-win32.whl", hash = "sha256:1535e537b6d60d0cfd2b4785f1c7a021beb62d8df6bac3dc6c45bb866ce648e4"},
+]
+urllib3 = [
+    {file = "urllib3-1.26.9-py2.py3-none-any.whl", hash = "sha256:44ece4d53fb1706f667c9bd1c648f5469a2ec925fcf3a776667042d645472c14"},
+    {file = "urllib3-1.26.9.tar.gz", hash = "sha256:aabaf16477806a5e1dd19aa41f8c2b7950dd3c746362d7e3223dbe6de6ac448e"},
 ]
 w3lib = [
     {file = "w3lib-1.22.0-py2.py3-none-any.whl", hash = "sha256:0161d55537063e00d95a241663ede3395c4c6d7b777972ba2fd58bbab2001e53"},
