@@ -6,7 +6,7 @@ authors = ["Lucas Lin <redcorvus0218@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-scrapy = "^2.2.1"
+scrapy = "^2.9.0"
 pandas = "^1.0.5"
 SQLObject = "^3.8.0"
 html5lib = "^1.1"
